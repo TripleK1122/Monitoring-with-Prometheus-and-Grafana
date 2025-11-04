@@ -1,0 +1,57 @@
+name: Monitoring Stack CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # 🧱 1. Клонируем репозиторий
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 🐳 2. Настраиваем Docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 🔍 3. Проверяем синтаксис docker-compose.yml
+      - name: Validate docker-compose syntax
+        run: docker compose config
+
+      # 🧩 4. Собираем все контейнеры
+      - name: Build all Docker services
+        run: docker compose build
+
+      # 📦 5. Запускаем весь стек мониторинга
+      - name: Run services (detached)
+        run: docker compose up -d
+
+      # 🕐 6. Даем время контейнерам запуститься
+      - name: Wait for containers to start
+        run: sleep 15
+
+      # 🔎 7. Проверяем, что все контейнеры запущены
+      - name: Check running containers
+        run: docker ps -a
+
+      # ✅ 8. Тестируем доступность Prometheus и Grafana
+      - name: Test Prometheus and Grafana endpoints
+        run: |
+          echo "Checking Prometheus..."
+          curl -f http://localhost:9090 || (echo "❌ Prometheus not responding" && exit 1)
+          echo "✅ Prometheus OK"
+
+          echo "Checking Grafana..."
+          curl -f http://localhost:3000/login || (echo "❌ Grafana not responding" && exit 1)
+          echo "✅ Grafana OK"
+
+      # 🧹 9. Завершаем работу и чистим ресурсы
+      - name: Stop and clean up
+        if: always()
+        run: docker compose down -v
