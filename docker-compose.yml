@@ -21,7 +21,7 @@ services:
       - monitoring
 
   webapp:
-    build: ../cicd-mini-project/app
+    build:build: ./app
     container_name: my-webapp
     ports:
       - "3001:3001"
