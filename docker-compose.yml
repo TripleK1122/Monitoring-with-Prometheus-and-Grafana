@@ -1,4 +1,15 @@
+# docker-compose.yml
+version: "3.8"
+
 services:
+  webapp:
+    build: ./app
+    container_name: my-webapp
+    ports:
+      - "3001:3001"
+    networks:
+      - monitoring
+
   prometheus:
     image: prom/prometheus:latest
     container_name: project-4-monitoring-prometheus
@@ -17,14 +28,6 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
-    networks:
-      - monitoring
-
-  webapp:
-    build:build: ./app
-    container_name: my-webapp
-    ports:
-      - "3001:3001"
     networks:
       - monitoring
 
