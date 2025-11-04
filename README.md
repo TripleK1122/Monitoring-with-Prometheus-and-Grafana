@@ -19,9 +19,8 @@ docker-compose down
 
 ---
 
-## ✅ 5. Проверим запуск
-
-Теперь запусти стек:
+✅ 5. Check the Launch
+Now, run the stack:
 
 ```bash
 docker-compose up -d
